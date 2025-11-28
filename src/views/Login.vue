@@ -37,6 +37,8 @@ export default {
                 // Aquí verificamos si fue exitoso
                 if (data.exito) {
                     alert('Login exitoso!')
+                    localStorage.setItem("token", data.token);
+                    this.$router.push('/');
                     // Aquí daremos paso a la siguiente vista (próximo paso)
                 } else {
                     alert(data.mensaje)
