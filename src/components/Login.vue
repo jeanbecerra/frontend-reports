@@ -17,18 +17,34 @@ export default {
             this.loading = true
 
             try {
-                // Simular llamada a API
-                await new Promise(resolve => setTimeout(resolve, 2000))
+                // Hacer petición al backend
+                const response = await fetch('http://localhost:3308/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        login: this.form.email,
+                        password: this.form.password
+                    })
+                })
 
-                // Aquí iría tu lógica de autenticación real
-                console.log('Login attempt:', this.form)
+                // Convertir la respuesta a JSON
+                const data = await response.json()
 
-                // Ejemplo de éxito
-                alert('Login exitoso!')
+                console.log('Respuesta del servidor:', data)
+
+                // Aquí verificamos si fue exitoso
+                if (data.exito) {
+                    alert('Login exitoso!')
+                    // Aquí daremos paso a la siguiente vista (próximo paso)
+                } else {
+                    alert(data.mensaje)
+                }
 
             } catch (error) {
-                console.error('Login error:', error)
-                alert('Error en el login')
+                console.error('Error de conexión:', error)
+                alert('Error al conectar con el servidor')
             } finally {
                 this.loading = false
             }
@@ -75,8 +91,9 @@ export default {
                 <div class="md:w-1/2 p-8 md:p-12">
                     <div class="max-w-md mx-auto">
                         <div class="text-center mb-8">
-                            <a href="https://www.fravatel.com.pe/"><img class="m-auto w-72" src="@/assets/logoFravatel.png" alt="Imagen" /></a>
-                            
+                            <a href="https://www.fravatel.com.pe/"><img class="m-auto w-72"
+                                    src="@/assets/logoFravatel.png" alt="Imagen" /></a>
+
                             <p class="text-gray-600 mt-2">Ingresa tus credenciales para continuar</p>
                         </div>
 
@@ -84,19 +101,19 @@ export default {
                             <!-- Campo Email -->
                             <div>
                                 <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Correo Electrónico
+                                    Usuario
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                            <path
-                                                d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M10 2a4 4 0 110 8 4 4 0 010-8z" />
+                                            <path d="M4 16c0-3.314 2.686-6 6-6s6 2.686 6 6v1H4v-1z" />
                                         </svg>
                                     </div>
-                                    <input id="email" v-model="form.email" type="email" required
+                                    <input id="email" v-model="form.email" type="text" required
                                         class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-                                        placeholder="ingresatucorreo@email.com">
+                                        placeholder="Ingresa tu usuario">
                                 </div>
                             </div>
 
