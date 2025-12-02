@@ -1,4 +1,5 @@
 <script>
+
 export default {
     methods: {
         logout() {
@@ -7,6 +8,8 @@ export default {
         }
     }
 }
+
+
 </script>
 
 
