@@ -40,7 +40,7 @@ export default {
                 const data = await response.json();
 
                 if (data.exito) {
-                    this.showModal("success", "¡Login exitoso!");
+                    this.showModal("success", "¡Login exitoso! Bienvenido a la plataforma 👋");
                     localStorage.setItem("token", data.token);
                     setTimeout(() => {
                         this.$router.push("/");
@@ -55,7 +55,7 @@ export default {
             } finally {
                 setTimeout(() => {
                         this.loading = false;
-                    }, 1200); 
+                    }, 2000); 
             }
         },
 
@@ -157,7 +157,7 @@ export default {
                                         class="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                         placeholder="••••••••">
 
-                                    <!-- <button type="button" @click="showPassword = !showPassword"
+                                    <button type="button" @click="showPassword = !showPassword"
                                         class="absolute inset-y-0 right-0 pr-3 flex items-center">
                                         <svg v-if="showPassword" class="h-5 w-5 text-gray-400" fill="currentColor"
                                             viewBox="0 0 20 20">
@@ -174,7 +174,7 @@ export default {
                                             <path
                                                 d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
                                         </svg>
-                                    </button>-->
+                                    </button>
                                 </div>
                             </div>
 
