@@ -1,59 +1,80 @@
 <script>
+import BaseModal from "@/components/Modal.vue";
+
 export default {
-    name: 'LoginPage',
+    name: "LoginPage",
+    components: { BaseModal },
+
     data() {
         return {
             form: {
-                email: '',
-                password: '',
+                email: "",
+                password: "",
                 remember: false
             },
-            showPassword: false,
-            loading: false
-        }
+            loading: false,
+
+            modal: {
+                show: false,
+                message: "",
+                type: ""
+            }
+        };
     },
     methods: {
         async handleLogin() {
-            this.loading = true
+            this.loading = true;
 
             try {
-                // Hacer petición al backend
-                const response = await fetch('http://localhost:3308/api/login', {
-                    method: 'POST',
+                const response = await fetch("http://localhost:3308/api/login", {
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/json'
+                        "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
                         login: this.form.email,
-                        password: this.form.password
-                    })
-                })
+                        password: this.form.password,
+                    }),
+                });
 
-                // Convertir la respuesta a JSON
-                const data = await response.json()
+                const data = await response.json();
 
-                console.log('Respuesta del servidor:', data)
-
-                // Aquí verificamos si fue exitoso
                 if (data.exito) {
-                    alert('Login exitoso!')
-                    // Aquí daremos paso a la siguiente vista (próximo paso)
+                    this.showModal("success", "¡Login exitoso!");
+                    localStorage.setItem("token", data.token);
+                    setTimeout(() => {
+                        this.$router.push("/");
+                    }, 1200);
+
                 } else {
-                    alert(data.mensaje)
+                    this.showModal("error", data.mensaje || "Credenciales incorrectas");
                 }
 
             } catch (error) {
-                console.error('Error de conexión:', error)
-                alert('Error al conectar con el servidor')
+                this.showModal("error", "Error al conectar con el servidor");
             } finally {
-                this.loading = false
+                setTimeout(() => {
+                        this.loading = false;
+                    }, 1200); 
             }
+        },
+
+        showModal(type, message) {
+            this.modal.type = type;
+            this.modal.message = message;
+            this.modal.show = true;
+
+            setTimeout(() => {
+                this.modal.show = false;
+            }, 2000);
         }
     }
-}
+};
 </script>
 
 <template>
+    <BaseModal :show="modal.show" :message="modal.message" :type="modal.type" />
+
     <div class="min-h-screen  bg-gray-200  flex items-center justify-center p-4">
         <div class="max-w-6xl w-full bg-white rounded-2xl shadow-xl  overflow-hidden">
             <div class="flex flex-col md:flex-row">
@@ -122,6 +143,7 @@ export default {
                                 <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
                                     Contraseña
                                 </label>
+
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -134,7 +156,8 @@ export default {
                                         :type="showPassword ? 'text' : 'password'" required
                                         class="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                                         placeholder="••••••••">
-                                    <button type="button" @click="showPassword = !showPassword"
+
+                                    <!-- <button type="button" @click="showPassword = !showPassword"
                                         class="absolute inset-y-0 right-0 pr-3 flex items-center">
                                         <svg v-if="showPassword" class="h-5 w-5 text-gray-400" fill="currentColor"
                                             viewBox="0 0 20 20">
@@ -151,11 +174,11 @@ export default {
                                             <path
                                                 d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
                                         </svg>
-                                    </button>
+                                    </button>-->
                                 </div>
                             </div>
 
-                            <!-- Recordar contraseña y Olvidé contraseña -->
+                            <!-- Recordar contraseña -->
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
                                     <input id="remember" v-model="form.remember" type="checkbox"
@@ -164,9 +187,6 @@ export default {
                                         Recordar sesión
                                     </label>
                                 </div>
-                                <a href="#" class="text-sm text-blue-600 hover:text-blue-500 transition duration-200">
-                                    ¿Olvidaste tu contraseña?
-                                </a>
                             </div>
 
                             <!-- Botón de Login -->
@@ -188,7 +208,7 @@ export default {
                                 </span>
                             </button>
 
-                            <!-- Registrarse -->
+                            <!-- Soporte -->
                             <div class="text-center">
                                 <p class="text-gray-600">
                                     ¿Tienes problemas al iniciar sesion?
