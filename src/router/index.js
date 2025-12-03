@@ -20,7 +20,8 @@ const routes = [
   // 2. RUTA PADRE: LAYOUT DEL PANEL
   {
     path: '/',
-    component: PanelLayout, // << ESTA RUTA CARGA EL COMPONENTE CON EL SIDEBAR Y HEADER
+    component: PanelLayout,
+    meta: { requiresAuth: true }, // << ESTA RUTA CARGA EL COMPONENTE CON EL SIDEBAR Y HEADER
     children: [
       // RUTAS HIJAS: SE CARGAN DENTRO DEL PanelLayout
       {
