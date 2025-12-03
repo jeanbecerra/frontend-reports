@@ -2,7 +2,6 @@
     <transition name="fade">
         <div v-if="show" class="fixed bottom-5 right-7 z-50">
 
-
             <div v-if="type === 'success'">
                 <div class="alert flex flex-row items-center bg-green-200 p-5 rounded border-b-2 border-green-300">
                     <div

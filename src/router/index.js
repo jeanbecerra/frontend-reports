@@ -4,7 +4,7 @@ import Login from '../views/Login.vue';
 
 // 1. IMPORTA EL LAYOUT DEL PANEL
 import PanelLayout from '../layouts/PanelLayout.vue'; 
-// Importa tus vistas protegidas (el contenido del panel)
+// Importa las vistas protegidas (el contenido del panel)
 import Dashboard from '../views/Dashboard.vue';
 import Home from '../views/Home.vue'; 
 // ... Otras vistas
