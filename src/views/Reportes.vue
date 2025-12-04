@@ -111,7 +111,7 @@ const exportarExcel = () => {
                 <button @click="exportarExcel" class="bg-green-600 text-white px-4 py-2 rounded ml-2">Exportar
                     Excel</button>
             </div>
-            <input type="text" placeholder="Buscar por agente o cliente" class="border rounded px-3 py-2"
+            <input type="text" placeholder="Tipo de llamada" class="border rounded px-3 py-2"
                 v-model="search" />
         </div>
 
