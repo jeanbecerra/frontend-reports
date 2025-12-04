@@ -69,9 +69,9 @@ const confirmLogout = () => {
           <!-- Reportes -->
           <li>
             <router-link
-              to="/home"
+              to="/reportes"
               class="flex items-center space-x-4 px-4 py-3 rounded-md transition-colors duration-200"
-              :class="isActive('/home')
+              :class="isActive('/reportes')
                 ? 'bg-gradient-to-r from-green-600 to-blue-400 text-white'
                 : 'text-gray-600 hover:bg-gray-200 hover:text-gray-700'"
             >

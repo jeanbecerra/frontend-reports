@@ -6,7 +6,7 @@ import Login from '../views/Login.vue';
 import PanelLayout from '../layouts/PanelLayout.vue'; 
 // Importa las vistas protegidas (el contenido del panel)
 import Dashboard from '../views/Dashboard.vue';
-import Home from '../views/Home.vue'; 
+import Reportes from '../views/Reportes.vue'; 
 // ... Otras vistas
 
 const routes = [
@@ -35,9 +35,9 @@ const routes = [
         meta: { requiresAuth: true } // 🔒 PROTEGIDA
       },
       {
-        path: 'home', // La URL será /home
-        name: 'Home',
-        component: Home,
+        path: 'reportes', // La URL será /home
+        name: 'Reportes',
+        component: Reportes,
         meta: { requiresAuth: true } // 🔒 PROTEGIDA
       },
       // ... Agrega más rutas protegidas aquí (ej. /usuarios, /perfil)

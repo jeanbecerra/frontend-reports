@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import SidebarComponent from '../components/SidebarComponent.vue'
 
+const usuario = localStorage.getItem("usuario");
+
 const isSidebarOpen = ref(false)
 
 function toggleSidebar() {
@@ -19,11 +21,12 @@ function toggleSidebar() {
     <!-- Contenido principal -->
     <div class="flex-1 flex flex-col">
       <!-- Header -->
-      <header class="h-16 bg-white shadow flex items-center px-6">
+      <header class="h-16 bg-white shadow flex items-center justify-between px-6">
         <button @click="toggleSidebar" class="p-2 rounded hover:bg-gray-200">
           <!-- icono hamburguesa -->
           ☰
         </button>
+        <p class="uppercase">{{usuario}}</p>
       </header>
 
       <!-- Main -->

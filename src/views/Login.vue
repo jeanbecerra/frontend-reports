@@ -1,7 +1,11 @@
 <script>
 import BaseModal from "@/components/Modal.vue";
 
+
+
+
 export default {
+    
     name: "LoginPage",
     components: { BaseModal },
 
@@ -18,7 +22,8 @@ export default {
                 show: false,
                 message: "",
                 type: ""
-            }
+            },
+            showPassword: false
         };
     },
     methods: {
@@ -41,6 +46,7 @@ export default {
 
                 if (data.exito) {
                     this.showModal("success", "¡Login exitoso! Bienvenido a la plataforma 👋");
+                    localStorage.setItem("usuario", data.usuario);
                     localStorage.setItem("token", data.token);
                     setTimeout(() => {
                         this.$router.push("/");
