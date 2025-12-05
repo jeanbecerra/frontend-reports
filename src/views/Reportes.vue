@@ -144,9 +144,8 @@ const exportarExcel = async () => {
                     v-model="search" />
                 <select v-model="limit" @change="cargarCDRs(1)" class="border my-4 rounded px-3 py-2 ml-3">
                     <option value="17">17 filas</option>
+                    <option value="50">50 filas</option>
                     <option value="100">100 filas</option>
-                    <option value="200">200 filas</option>
-                    <option value="500">500 filas</option>
                 </select>
             </di>
         </div>
@@ -158,41 +157,60 @@ const exportarExcel = async () => {
         </div>
 
         <!-- TABLA -->
-        <div v-else class="overflow-x-auto bg-white rounded-lg shadow">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Usuario</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Origen</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Fecha Inicio</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Fecha Fin</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Destino</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Tipo de llamada</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Duración</th>
-                    </tr>
-                </thead>
+        <!-- TABLA COMPLETA CON SCROLL Y HEADER FIJO -->
+<div v-else class="bg-white rounded-lg shadow overflow-x-auto">
 
-                <tbody class="divide-y divide-gray-200">
-                    <tr v-for="call in filteredCalls" :key="call.id_call" class="hover:bg-gray-50">
-                        <td class="px-4 py-2 text-sm uppercase">{{ usuario }}</td>
-                        <td class="px-4 py-2 text-sm uppercase">{{ call.caller_id }}</td>
-                        <td class="px-4 py-2 text-sm">{{ formatearFecha(call.call_start) }}</td>
-                        <td class="px-4 py-2 text-sm">{{ formatearFecha(call.call_end) }}</td>
-                        <td class="px-4 py-2 text-sm uppercase">{{ call.called_number }}</td>
-                        <td class="px-4 py-2 text-sm">{{ call.tariffdesc || 'N/A' }}</td>
-                        <td class="px-4 py-2 text-sm">
-                            {{ calcularDuracion(call.call_start, call.call_end) }}
-                        </td>
-                    </tr>
+    <!-- Contenedor que limita la altura y agrega scroll -->
+    <div class="max-h-[400px] overflow-y-auto">
 
-                    <tr v-if="!loading && filteredCalls.length === 0">
-                        <td colspan="7" class="text-center py-4 text-gray-500">
-                            No se encontraron llamadas para este rango.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <table class="min-w-full divide-y divide-gray-200">
+
+            <!-- Encabezado fijo -->
+            <thead class="bg-gray-50 sticky top-0 z-10">
+                <tr>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Usuario</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Origen</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Fecha Inicio</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Fecha Fin</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Destino</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Tipo de llamada</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Duración</th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200">
+
+                <!-- Filas -->
+                <tr
+                    v-for="call in filteredCalls"
+                    :key="call.id_call"
+                    class="hover:bg-gray-50 transition"
+                >
+                    <td class="px-4 py-2 text-sm uppercase">{{ usuario }}</td>
+                    <td class="px-4 py-2 text-sm uppercase">{{ call.caller_id }}</td>
+                    <td class="px-4 py-2 text-sm">{{ formatearFecha(call.call_start) }}</td>
+                    <td class="px-4 py-2 text-sm">{{ formatearFecha(call.call_end) }}</td>
+                    <td class="px-4 py-2 text-sm uppercase">{{ call.called_number }}</td>
+                    <td class="px-4 py-2 text-sm">{{ call.tariffdesc || 'N/A' }}</td>
+                    <td class="px-4 py-2 text-sm">
+                        {{ calcularDuracion(call.call_start, call.call_end) }}
+                    </td>
+                </tr>
+
+                <!-- Mensaje cuando no hay resultados -->
+                <tr v-if="!loading && filteredCalls.length === 0">
+                    <td colspan="7" class="text-center py-4 text-gray-500">
+                        No se encontraron llamadas para este rango.
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
 
         <!-- PAGINACIÓN -->
         <div class="flex justify-between items-center mt-4">
