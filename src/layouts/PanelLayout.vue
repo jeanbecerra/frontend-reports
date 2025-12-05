@@ -1,14 +1,28 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import SidebarComponent from '../components/SidebarComponent.vue'
 
 const usuario = localStorage.getItem("usuario");
 
 const isSidebarOpen = ref(false)
 
+
+const fechaHora = ref('')
+
 function toggleSidebar() {
   isSidebarOpen.value = !isSidebarOpen.value
 }
+
+
+onMounted(() => {
+  setInterval(() => {
+    const ahora = new Date()
+    fechaHora.value = ahora.toLocaleString('es-PE', {
+      dateStyle: 'short',
+      timeStyle: 'medium'
+    })
+  }, 1000)
+})
 </script>
 
 
@@ -32,7 +46,17 @@ function toggleSidebar() {
             <line x1="17" y1="18" x2="3" y2="18"></line>
           </svg>
         </button>
-        <p class="uppercase">{{ usuario }}</p>
+        <div class="flex space-x-4">
+          <p class="text-gray-700">{{ fechaHora }}</p>
+          <div class="border-r border-gray-300 h-6 mx-4"></div>
+          <div class="flex items-center space-x-2">
+            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+            <span class="text-gray-900">Activo</span>
+          </div>
+          <div class="border-r border-gray-300 h-6 mx-4"></div>
+          <p class="uppercase"><strong>{{ usuario }}</strong></p>
+        </div>
+
       </header>
 
       <!-- Main -->
