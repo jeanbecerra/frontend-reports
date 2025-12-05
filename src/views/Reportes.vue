@@ -5,96 +5,120 @@ import { saveAs } from 'file-saver'
 
 const usuario = localStorage.getItem("usuario");
 
+// DATA PRINCIPAL
 const calls = ref([]);
 const startDate = ref('');
 const endDate = ref('');
 const search = ref('');
 const loading = ref(false);
 
-// Filtrado por búsqueda (agente o cliente)
+// PAGINACIÓN
+const page = ref(1);
+const limit = ref(17);
+const totalPages = ref(1);
+const total = ref(0);
+
+// FILTRO SOLO DE LA PÁGINA ACTUAL
 const filteredCalls = computed(() => {
     return calls.value.filter(c =>
-    (!search.value || (c.tariffdesc && c.tariffdesc.toLowerCase().includes(search.value.toLowerCase()))
-        || (c.called_number && c.called_number.toLowerCase().includes(search.value.toLowerCase())))
+        !search.value ||
+        (c.tariffdesc && c.tariffdesc.toLowerCase().includes(search.value.toLowerCase())) ||
+        (c.called_number && c.called_number.toLowerCase().includes(search.value.toLowerCase()))
     );
 });
 
-// Función para calcular duración en formato mm:ss
+// DURACIÓN
 const calcularDuracion = (inicio, fin) => {
     if (!inicio || !fin) return '00:00';
-    const start = new Date(inicio);
-    const end = new Date(fin);
-    const diff = Math.floor((end - start) / 1000); // segundos
-    const minutes = String(Math.floor(diff / 60)).padStart(2, '0');
-    const seconds = String(diff % 60).padStart(2, '0');
-    return `${minutes}:${seconds}`;
+
+    const diff = Math.floor((new Date(fin) - new Date(inicio)) / 1000);
+    const min = String(Math.floor(diff / 60)).padStart(2, '0');
+    const sec = String(diff % 60).padStart(2, '0');
+
+    return `${min}:${sec}`;
 };
 
-// Función para formatear fechas MySQL DATETIME
+// FORMATEAR FECHA
 const formatearFecha = (datetime) => {
     if (!datetime) return '';
+
     const d = new Date(datetime);
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const min = String(d.getMinutes()).padStart(2, '0');
-    const ss = String(d.getSeconds()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} `
+        + `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
 };
 
-// Función para cargar CDRs desde el backend (solo al presionar el botón)
-const cargarCDRs = async () => {
+// CARGAR PAGINADO
+const cargarCDRs = async (goToPage = 1) => {
     if (!startDate.value || !endDate.value) {
         alert('Por favor selecciona un rango de fechas.');
         return;
     }
 
     loading.value = true;
-
-    const start = startDate.value; // 'YYYY-MM-DD'
-    const end = endDate.value + ' 23:59:59'; // incluir todo el día final
+    page.value = goToPage;
 
     try {
-        const url = `http://localhost:3308/api/cdrs/${usuario}?startDate=${start}&endDate=${end}`;
+        const url = `http://localhost:3308/api/cdrs/${usuario}?startDate=${startDate.value}&endDate=${endDate.value}&page=${page.value}&limit=${limit.value}`;
+
         const response = await fetch(url);
+
+        if (!response.ok) throw new Error("Error en el servidor");
+
         const data = await response.json();
 
-        // Simular tiempo de carga de 1 segundo
-        setTimeout(() => {
-            calls.value = data.data || data;
-            loading.value = false;
-        }, 1000);
-
-    } catch (error) {
-        console.error('Error al cargar CDRs:', error);
-        setTimeout(() => {
-            calls.value = [];
-            loading.value = false;
-        }, 1000);
+        calls.value = data.data || [];
+        total.value = data.total ?? data.count ?? 0;
+        totalPages.value = data.totalPages ?? Math.ceil(total.value / limit.value);
+    } catch (e) {
+        console.error(e);
+        calls.value = [];
+        total.value = 0;
+        totalPages.value = 1;
     }
+
+    loading.value = false;
 };
 
-// Función para exportar a Excel
-const exportarExcel = () => {
-    if (!filteredCalls.value.length) return alert('No hay datos para exportar');
+// EXPORTAR EXCEL (TODOS LOS REGISTROS)
+const exportarExcel = async () => {
+    if (!startDate.value || !endDate.value) {
+        return alert('Selecciona un rango de fechas');
+    }
 
-    const datos = filteredCalls.value.map(c => ({
-        'Usuario': usuario,
-        'Origen': c.caller_id,
-        'Fecha Inicio': formatearFecha(c.call_start),
-        'Fecha Fin': formatearFecha(c.call_end),
-        'Destino': c.called_number,
-        'Tipo de llamada': c.tariffdesc || 'N/A',
-        'Duración': calcularDuracion(c.call_start, c.call_end)
-    }));
+    try {
+        const url = `http://localhost:3308/api/cdrs-export/${usuario}?startDate=${startDate.value}&endDate=${endDate.value}`;
 
-    const worksheet = XLSX.utils.json_to_sheet(datos);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'CDRs');
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    saveAs(data, `CDRs_${usuario}.xlsx`);
+        const response = await fetch(url);
+
+        if (!response.ok) throw new Error("Error en backend export");
+
+        const data = await response.json();
+
+        if (!data.data || data.data.length === 0) {
+            return alert("No hay datos para exportar.");
+        }
+
+        const datos = data.data.map(c => ({
+            'Usuario': usuario,
+            'Origen': c.caller_id,
+            'Fecha Inicio': formatearFecha(c.call_start),
+            'Fecha Fin': formatearFecha(c.call_end),
+            'Destino': c.called_number,
+            'Tipo de llamada': c.tariffdesc || 'N/A',
+            'Duración': calcularDuracion(c.call_start, c.call_end)
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(datos);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'CDRs');
+
+        const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        saveAs(new Blob([buffer]), `CDRs_${usuario}.xlsx`);
+
+    } catch (e) {
+        console.error("Error exportando Excel", e);
+        alert("Error exportando Excel. Revisa la consola.");
+    }
 };
 </script>
 
@@ -102,23 +126,38 @@ const exportarExcel = () => {
     <div class="p-6 bg-gray-100 min-h-screen">
         <h1 class="text-2xl font-bold mb-6">Historial de Llamadas</h1>
 
-        <!-- Filtros -->
+        <!-- FILTROS -->
         <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 space-y-4 sm:space-y-0">
             <div>
                 <input type="date" class="border rounded px-3 py-2 mr-3" v-model="startDate" />
                 <input type="date" class="border rounded px-3 py-2 mr-3" v-model="endDate" />
-                <button @click="cargarCDRs" class="bg-blue-600 text-white px-4 py-2 rounded"> Buscar </button>
-                <button @click="exportarExcel" class="bg-green-600 text-white px-4 py-2 rounded ml-2">Exportar
-                    Excel</button>
+
+                <button @click="cargarCDRs()" class="bg-blue-600 text-white px-4 py-2 rounded">
+                    Buscar
+                </button>
+
+                <button @click="exportarExcel" class="bg-green-600 text-white px-4 py-2 rounded ml-2">
+                    Exportar Excel
+                </button>
             </div>
-            <input type="text" placeholder="Tipo de llamada" class="border rounded px-3 py-2"
-                v-model="search" />
+            <di><input type="text" placeholder="Tipo de llamada o número" class="border rounded px-3 py-2"
+                    v-model="search" />
+                <select v-model="limit" @change="cargarCDRs(1)" class="border my-4 rounded px-3 py-2 ml-3">
+                    <option value="17">17 filas</option>
+                    <option value="100">100 filas</option>
+                    <option value="200">200 filas</option>
+                    <option value="500">500 filas</option>
+                </select>
+            </di>
         </div>
 
-        <!-- Mensaje de cargando -->
-        <div v-if="loading" class="text-center py-4 text-gray-600">Cargando llamadas...</div>
 
-        <!-- Tabla de llamadas -->
+        <!-- CARGANDO -->
+        <div v-if="loading" class="text-center py-4 text-gray-600">
+            Cargando llamadas...
+        </div>
+
+        <!-- TABLA -->
         <div v-else class="overflow-x-auto bg-white rounded-lg shadow">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
@@ -132,23 +171,44 @@ const exportarExcel = () => {
                         <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Duración</th>
                     </tr>
                 </thead>
+
                 <tbody class="divide-y divide-gray-200">
                     <tr v-for="call in filteredCalls" :key="call.id_call" class="hover:bg-gray-50">
-                        <td class="px-4 py-2 text-sm text-gray-700 uppercase">{{ usuario }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700 uppercase">{{ call.caller_id }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ formatearFecha(call.call_start) }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ formatearFecha(call.call_end) }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700 uppercase">{{ call.called_number }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ call.tariffdesc || 'N/A' }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ calcularDuracion(call.call_start, call.call_end)
-                            }}</td>
+                        <td class="px-4 py-2 text-sm uppercase">{{ usuario }}</td>
+                        <td class="px-4 py-2 text-sm uppercase">{{ call.caller_id }}</td>
+                        <td class="px-4 py-2 text-sm">{{ formatearFecha(call.call_start) }}</td>
+                        <td class="px-4 py-2 text-sm">{{ formatearFecha(call.call_end) }}</td>
+                        <td class="px-4 py-2 text-sm uppercase">{{ call.called_number }}</td>
+                        <td class="px-4 py-2 text-sm">{{ call.tariffdesc || 'N/A' }}</td>
+                        <td class="px-4 py-2 text-sm">
+                            {{ calcularDuracion(call.call_start, call.call_end) }}
+                        </td>
                     </tr>
+
                     <tr v-if="!loading && filteredCalls.length === 0">
-                        <td colspan="7" class="text-center py-4 text-gray-500">No se encontraron llamadas para este
-                            rango.</td>
+                        <td colspan="7" class="text-center py-4 text-gray-500">
+                            No se encontraron llamadas para este rango.
+                        </td>
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- PAGINACIÓN -->
+        <div class="flex justify-between items-center mt-4">
+            <button @click="cargarCDRs(page - 1)" :disabled="page === 1"
+                class="px-4 py-2 bg-gray-300 rounded disabled:opacity-50">
+                ⬅ Anterior
+            </button>
+
+            <span class="text-gray-700 font-semibold">
+                Página {{ page }} de {{ totalPages }} — Total: {{ total }}
+            </span>
+
+            <button @click="cargarCDRs(page + 1)" :disabled="page === totalPages"
+                class="px-4 py-2 bg-gray-300 rounded disabled:opacity-50">
+                Siguiente ➡
+            </button>
         </div>
     </div>
 </template>
