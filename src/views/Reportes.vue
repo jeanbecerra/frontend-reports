@@ -241,7 +241,7 @@ const exportarExcel = async () => {
         <div class="flex justify-between items-center mt-4">
             <button @click="cargarCDRs(page - 1)" :disabled="page === 1"
                 class="px-4 py-2 bg-gray-300 rounded disabled:opacity-50">
-                ⬅ Anterior
+                ← Anterior
             </button>
 
             <span class="text-gray-700 font-semibold">
@@ -250,7 +250,7 @@ const exportarExcel = async () => {
 
             <button @click="cargarCDRs(page + 1)" :disabled="page === totalPages"
                 class="px-4 py-2 bg-gray-300 rounded disabled:opacity-50">
-                Siguiente ➡
+                Siguiente →
             </button>
         </div>
     </div>
