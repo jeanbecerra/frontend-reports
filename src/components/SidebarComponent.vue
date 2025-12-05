@@ -29,7 +29,7 @@ const confirmLogout = () => {
 <template>
   <div :class="[
     'min-h-screen overflow-hidden border-r transition-all duration-300',
-    isOpen ? 'w-56 bg-white shadow-lg' : 'w-[4.35rem] bg-gray-100'
+    isOpen ? 'w-56 bg-white shadow-lg' : 'w-[4.35rem] bg-gray-200'
   ]">
 
     <!-- TODO EL SIDEBAR -->

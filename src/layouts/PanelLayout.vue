@@ -47,10 +47,12 @@ onMounted(() => {
           </svg>
         </button>
         <div class="flex space-x-4">
-          <p class="text-gray-700">{{ fechaHora }}</p>
+          <div class="flex items-center space-x-2">
+            <p class="text-gray-700">{{ fechaHora }}</p>
+          </div>
           <div class="border-r border-gray-300 h-6 mx-4"></div>
           <div class="flex items-center space-x-2">
-            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+            <div class="w-3 h-3 bg-green-500 rounded-full relative top-px"></div>
             <span class="text-gray-900">Activo</span>
           </div>
           <div class="border-r border-gray-300 h-6 mx-4"></div>

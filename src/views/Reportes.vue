@@ -15,7 +15,7 @@ const loading = ref(false);
 const filteredCalls = computed(() => {
     return calls.value.filter(c =>
     (!search.value || (c.tariffdesc && c.tariffdesc.toLowerCase().includes(search.value.toLowerCase()))
-        || (c.client && c.client.toLowerCase().includes(search.value.toLowerCase())))
+        || (c.called_number && c.called_number.toLowerCase().includes(search.value.toLowerCase())))
     );
 });
 
