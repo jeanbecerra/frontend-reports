@@ -53,7 +53,7 @@ onMounted(() => {
           <div class="border-r border-gray-300 h-6 mx-4"></div>
           <div class="flex items-center space-x-2">
             <div class="w-3 h-3 bg-green-500 rounded-full relative top-px"></div>
-            <span class="text-gray-900">Activo</span>
+            <span class="text-gray-900">Service</span>
           </div>
           <div class="border-r border-gray-300 h-6 mx-4"></div>
           <p class="uppercase"><strong>{{ usuario }}</strong></p>

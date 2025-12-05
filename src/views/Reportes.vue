@@ -140,14 +140,14 @@ const exportarExcel = async () => {
                     Exportar Excel
                 </button>
             </div>
-            <di><input type="text" placeholder="Tipo de llamada o número" class="border rounded px-3 py-2"
+            <div><input type="text" placeholder="Tipo de llamada o número" class="border rounded px-3 py-2"
                     v-model="search" />
                 <select v-model="limit" @change="cargarCDRs(1)" class="border my-4 rounded px-3 py-2 ml-3">
                     <option value="17">17 filas</option>
                     <option value="50">50 filas</option>
                     <option value="100">100 filas</option>
                 </select>
-            </di>
+            </div>
         </div>
 
 
